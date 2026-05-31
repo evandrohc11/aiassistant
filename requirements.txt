@@ -1,0 +1,10 @@
+fastapi>=0.111.0
+uvicorn[standard]>=0.29.0
+supabase>=2.4.0
+twilio>=9.0.0
+python-dotenv>=1.0.0
+pydantic-settings>=2.2.0
+openai>=1.30.0          # LLM SDK
+httpx>=0.27.0
+python-multipart>=0.0.9  # Twilio form-encoded webhooks
+apscheduler>=3.10.4       # daily nudge scheduler

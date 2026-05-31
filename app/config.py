@@ -7,7 +7,10 @@ class Settings(BaseSettings):
     # Supabase
     supabase_url: str
     supabase_service_key: str
-    owner_user_id: str = ""
+    owner_user_id: str = ""   # auth.users UUID; required for migration + daily nudge
+
+    # Migration
+    sqlite_path: str = "my_db.db"
 
     # Twilio
     twilio_account_sid: str

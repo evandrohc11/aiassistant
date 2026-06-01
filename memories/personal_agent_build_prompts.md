@@ -11,6 +11,10 @@
 
 ## Master Context prompt
 
+## Always updated the .md files inside memories folder!!! And keep the project folder organized, place file in proper folder and don't let these changes broke the wire inside the project. ##
+
+
+
 ```
 You are an expert Python full-stack developer. You will help me build a personal assistant, step by step, in VS Code with GitHub Copilot.
 
@@ -144,3 +148,50 @@ Phase 5: Mood journal (optional, after the core works).
 
 Keep it text-only and private. Verify: logging a feeling stores a correctly mapped mood_entries row, and the weekly summary reflects it.
 ```
+
+## Phase 6 — Transaction audit log
+
+### Context
+The legacy system (Power BI file `_PAINEL_V1.pbix`) tracked all changes to the `item` table in an `audit_log` table with columns:
+`log_id`, `table_name`, `operation_type` (INSERT/UPDATE/DELETE), `previous_data` (JSON), `new_data` (JSON), `operation_timestamp`, `user_id`.
+
+We replicate this pattern in `transaction_audit` using a Postgres trigger (already in `supabase_schema.sql`).
+
+### What's already done (schema)
+- `transaction_audit` table stores every INSERT/UPDATE/DELETE on `transactions` with full JSONB before/after snapshots.
+- `fn_audit_transactions()` trigger function fires automatically — no application code needed for writes.
+- RLS: owner can read their own audit rows; writes are trigger-only (no API insert path needed).
+
+### Phase 6 implementation tasks
+
+**6a — Audit query endpoint**
+Add `GET /transactions/{id}/history` in a new router `app/routers/transactions.py`:
+- Query `transaction_audit` where `transaction_id = id`, ordered by `operated_at desc`.
+- Return list of `{operation, operated_at, previous_data, new_data}`.
+- Only expose to the owner (verify `owner_id` matches `OWNER_USER_ID` from config).
+
+**6b — WhatsApp "show history" command**
+Detect intent `show_history` in the LLM parser. When user asks something like:
+- "o que mudou nessa transação?" / "history of item 1234"
+Parse the `legacy_id` from the message, fetch from `transaction_audit`, and reply with a
+human-readable diff: what changed (old → new) for each UPDATE, or INSERT/DELETE events.
+
+**6c — Undo last change**
+Detect intent `undo_last`. Find the most recent UPDATE in `transaction_audit` for the given
+transaction, restore `previous_data` fields onto `transactions`, and reply confirming the rollback.
+Use `updated_at = now()` on the restored row so the trigger records the revert as a new UPDATE event.
+
+**6d — Admin summary**
+Weekly or on-demand: count changes by operation type in the last 7 days:
+```sql
+select operation, count(*) from transaction_audit
+where operated_at > now() - interval '7 days'
+group by operation;
+```
+
+### Key schema facts
+- `transaction_audit.previous_data` is NULL on INSERT.
+- `transaction_audit.new_data` is NULL on DELETE.
+- `transaction_audit.transaction_id` is the UUID from `transactions.id`.
+- `transaction_audit.legacy_id` is the integer from `transactions.legacy_id` for easy cross-reference.
+- The trigger runs as `security definer` so it bypasses RLS — audit rows are always written even when RLS is on.

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./.venv/supabase_database_password.txt)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
+      "Read(./secrets/**)",
+      "Read(./my_db.db)"
+    ]
+  }
+}

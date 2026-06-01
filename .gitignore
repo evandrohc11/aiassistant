@@ -31,3 +31,7 @@ Thumbs.db
 
 # SQLite (legacy source — keep out of repo)
 my_db.db
+
+# Raw source data files — large binaries/CSVs, not for version control
+raw_files/
+_pbix_extract/

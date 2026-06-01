@@ -16,6 +16,7 @@ Run:  python scripts/import_my_db.py
 import os
 import sqlite3
 import datetime
+import calendar
 from dotenv import load_dotenv
 from supabase import create_client
 
@@ -41,14 +42,10 @@ def to_date(y, m, d):
         return None
     if not (1900 <= y <= 2100) or not (1 <= m <= 12):
         return None
-    if d < 1 or d > 31:
-        d = 1
-    for dd in (d, 28, 1):
-        try:
-            return datetime.date(y, m, dd).isoformat()
-        except ValueError:
-            continue
-    return None
+    # clamp day to the actual last day of that month
+    last_day = calendar.monthrange(y, m)[1]
+    d = max(1, min(d, last_day))
+    return datetime.date(y, m, d).isoformat()
 
 
 def clean_amount(v):
@@ -73,7 +70,18 @@ def clean_ts(v):
     if not v:
         return None
     s = str(v).strip()
-    return None if s.startswith("1900") else s
+    if not s or s.startswith("1900"):
+        return None
+    # reject anything that doesn't look like a date/timestamp
+    if len(s) < 10 or s[4:5] != "-" or s[7:8] != "-":
+        return None
+    try:
+        y, m, d = int(s[0:4]), int(s[5:7]), int(s[8:10])
+    except ValueError:
+        return None
+    last_day = calendar.monthrange(y, m)[1]
+    d = max(1, min(d, last_day))
+    return f"{y:04d}-{m:02d}-{d:02d}" + s[10:]
 
 
 def nz(v):
@@ -120,8 +128,9 @@ def main():
         tx.append({
             "owner_id":    OWNER,
             "legacy_code": r["code"],
-            "occurred_on": to_date(r["year"], r["month"], r["day"]),
-            "amount":      amt,
+            "occurred_on":  to_date(r["year"], r["month"], r["day"]),
+            "purchase_date": clean_ts(r["purchase_date"]),
+            "amount":       amt,
             "currency":    "BRL",
             "direction":   "income" if amt > 0 else "expense",
             "category_id": cat_id.get(nz(r["grouped"])),
@@ -142,8 +151,8 @@ def main():
     print(f"skipped {skipped:,} rows with unparseable amounts")
 
     for i in range(0, len(tx), 500):
-        sb.table("transactions").insert(tx[i : i + 500]).execute()
-        print(f"  inserted {min(i + 500, len(tx)):,}/{len(tx):,}")
+        sb.table("transactions").upsert(tx[i : i + 500], on_conflict="owner_id,legacy_code").execute()
+        print(f"  upserted {min(i + 500, len(tx)):,}/{len(tx):,}")
 
     feelings = [
         {

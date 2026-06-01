@@ -9,18 +9,15 @@ class Settings(BaseSettings):
     supabase_service_key: str
     owner_user_id: str = ""   # auth.users UUID; required for migration + daily nudge
 
-    # Migration
-    sqlite_path: str = "my_db.db"
-
     # Twilio
-    twilio_account_sid: str
-    twilio_auth_token: str
-    twilio_whatsapp_from: str
-    my_whatsapp_number: str
+    twilio_account_sid: str = ""
+    twilio_auth_token: str = ""
+    twilio_whatsapp_from: str = ""
+    my_whatsapp_number: str = ""
 
-    # LLM
-    llm_api_key: str
-    llm_model: str = "gpt-4o-mini"
+    # LLM — Groq free tier
+    groq_api_key: str = ""
+    groq_model: str = "llama-3.3-70b-versatile"
 
     # App
     log_level: str = "INFO"

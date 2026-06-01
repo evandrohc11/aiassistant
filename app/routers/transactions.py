@@ -143,3 +143,50 @@ async def get_transaction(transaction_id: UUID) -> dict:
     if not res.data:
         raise HTTPException(status_code=404, detail="Transaction not found")
     return res.data
+
+
+class TransactionPatch(BaseModel):
+    occurred_on: Optional[date] = None
+    amount: Optional[float] = None
+    currency: Optional[str] = None
+    direction: Optional[str] = None
+    label: Optional[str] = None
+    details: Optional[str] = None
+    notes: Optional[str] = None
+    account_raw: Optional[str] = None
+    category_id: Optional[UUID] = None
+    label_id: Optional[int] = None
+    account_id: Optional[UUID] = None
+    card_id: Optional[int] = None
+    cleared: Optional[bool] = None
+
+
+@router.put("/{transaction_id}", response_model=dict)
+async def update_transaction(transaction_id: UUID, body: TransactionPatch) -> dict:
+    changes = {k: v for k, v in body.model_dump().items() if v is not None}
+    if not changes:
+        raise HTTPException(status_code=422, detail="No fields to update")
+    if "occurred_on" in changes:
+        changes["occurred_on"] = str(changes["occurred_on"])
+    if "category_id" in changes:
+        changes["category_id"] = str(changes["category_id"])
+    if "account_id" in changes:
+        changes["account_id"] = str(changes["account_id"])
+    changes["updated_at"] = "now()"
+    db = get_client()
+    res = (
+        db.table("transactions")
+        .update(changes)
+        .eq("id", str(transaction_id))
+        .eq("owner_id", OWNER)
+        .execute()
+    )
+    if not res.data:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+    return res.data[0]
+
+
+@router.delete("/{transaction_id}", status_code=204)
+async def delete_transaction(transaction_id: UUID) -> None:
+    db = get_client()
+    db.table("transactions").delete().eq("id", str(transaction_id)).eq("owner_id", OWNER).execute()

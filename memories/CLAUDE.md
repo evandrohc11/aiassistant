@@ -9,7 +9,7 @@ A private personal assistant I talk to over WhatsApp to track spending/earnings,
 - Backend: Python + FastAPI, always run inside the project virtual environment (`.venv`)
 - Database: Supabase (Postgres) via the `supabase-py` client
 - Messaging: Twilio WhatsApp sandbox (inbound webhook + outbound messages)
-- Parsing: a single LLM SDK call returning strict JSON
+- Parsing: a single LLM SDK call returning strict JSON — **Groq free tier** (`groq` Python package, model `llama-3.3-70b-versatile`); env vars `GROQ_API_KEY` + `GROQ_MODEL`
 - Migration: legacy data imported from Power BI CSV exports via `scripts/import_from_csv.py` (24,036 transactions — DONE ✓)
 - Hosting: Fly.io
 No web frontend — WhatsApp is the interface. Do not introduce other web frameworks, ORMs, or databases.

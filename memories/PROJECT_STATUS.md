@@ -81,7 +81,7 @@ C:\Projects\Assistant\
 | uvicorn | 0.48.0 | |
 | supabase | 2.30.1 | needs pyiceberg stub — see known issues |
 | twilio | 9.10.9 | |
-| openai | 2.38.0 | v2.x — same API as v1 |
+| groq | 0.9.0+ | Free hosted LLM API — model: llama-3.3-70b-versatile |
 | httpx | 0.28.1 | |
 | pydantic | 2.13.4 | |
 | pydantic-settings | 2.14.1 | |
@@ -154,8 +154,8 @@ TWILIO_AUTH_TOKEN=<from Twilio Console>
 TWILIO_WHATSAPP_FROM=whatsapp:+14155238886
 MY_WHATSAPP_NUMBER=whatsapp:+1xxxxxxxxxx
 
-LLM_API_KEY=sk-...
-LLM_MODEL=gpt-4o-mini
+GROQ_API_KEY=gsk_...       # from console.groq.com → API Keys
+GROQ_MODEL=llama-3.3-70b-versatile
 
 LOG_LEVEL=INFO
 ```
@@ -216,7 +216,7 @@ LOG_LEVEL=INFO
 | Decision | Choice | Reason |
 |---|---|---|
 | Hosting | Fly.io free tier | Always-on, HTTPS URL for Twilio webhook, simple deploy |
-| LLM | OpenAI gpt-4o-mini | Cheapest model with JSON mode; one call per message |
+| LLM | Groq free tier (Llama 3.3-70b-versatile) | Free hosted API; `groq` SDK; OpenAI-compatible |
 | Scheduler | APScheduler 3.x BackgroundScheduler | Runs inside FastAPI process; v4 API not compatible |
 | Twilio auth | RequestValidator in middleware | Every inbound POST validated before processing |
 | RLS | Enabled + auto-enable trigger | Belt-and-suspenders; service_role key bypasses for jobs |

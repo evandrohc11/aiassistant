@@ -6,7 +6,7 @@ A private assistant I talk to over WhatsApp to track spending/earnings, manage s
 
 ---
 
-## Always updated the .md files inside memories folder!!! And keep the project folder organized, place file in proper folder and don't let these changes broke the wire inside the project.
+## Always updated the .md files inside memories folder!!! And keep the project folder organized, place files in proper folder structure and don't let these changes broke the wire inside the project.
 
 
 ## ▶️ Current status — start here

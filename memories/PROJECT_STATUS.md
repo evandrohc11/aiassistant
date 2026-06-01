@@ -181,14 +181,14 @@ LOG_LEVEL=INFO
 - [x] Trigger fn_audit_transactions confirmed firing on transaction writes
 - [x] Constraint fixes: dropped unique(owner_id,name) on both cards and labels tables
 
-### ⏳ Phase 2 — FastAPI CRUD endpoints (NEXT)
-- /health exists
-- POST /transactions — create a new transaction
-- GET /transactions/summary?month=YYYY-MM — monthly totals by category
-- POST /tasks, GET /tasks — task management
-- Prompt lives in memories/personal_agent_build_prompts.md → ## Phase 2
+### ✅ Phase 2 — FastAPI CRUD endpoints (COMPLETE — 2026-05-31)
+- [x] `app/routers/transactions.py`: POST /transactions/, GET /transactions/, GET /transactions/summary?year&month, GET /transactions/{id}
+- [x] `app/routers/tasks.py`: POST /tasks/, GET /tasks/, PATCH /tasks/{id}, DELETE /tasks/{id}
+- [x] `app/config.py`: switched to GROQ_API_KEY/GROQ_MODEL; Twilio fields optional (default empty)
+- [x] Smoke tested: /health ✔, /transactions/summary?year=2024&month=1 returns 14 categories from real data
+- [x] Git commit: 9a9b041
 
-### ⏳ Phase 3 — WhatsApp webhook + LLM parsing + category rules engine
+### ⏳ Phase 3 — WhatsApp webhook + LLM parsing + category rules engine (NEXT)
 - Twilio inbound webhook stub exists at app/routers/webhook.py
 - Wire to: LLM parse → category_rules lookup → ask/save loop
 - ngrok for local dev tunnel
@@ -241,15 +241,10 @@ curl http://127.0.0.1:8000/health
 
 ## Next immediate action
 
-Phase 1 complete. Start Phase 2 — FastAPI CRUD endpoints.
-See: `memories/personal_agent_build_prompts.md` → ## Phase 2
+Phase 2 complete. Start Phase 3 — WhatsApp webhook + LLM parsing.
+See: `memories/personal_agent_build_prompts.md` → ## Phase 3
 
-Git commit pending: `git commit -am "chore: Phase 1 v2 schema + CSV import"`
-
-### Verify data in Supabase SQL Editor
-```sql
-select count(*) from transactions where owner_id = 'ddc418d6-6dc4-405f-b6e1-492627bb218e';
-select count(*) from labels       where owner_id = 'ddc418d6-6dc4-405f-b6e1-492627bb218e';
-select count(*) from cards        where owner_id = 'ddc418d6-6dc4-405f-b6e1-492627bb218e';
-select count(*) from transaction_audit;  -- should grow as transactions are touched
-```
+Phase 3 needs:
+- Real `GROQ_API_KEY` in `.env` (get from console.groq.com → API Keys)
+- Real Twilio sandbox credentials in `.env`
+- ngrok (or similar) for local webhook tunnel

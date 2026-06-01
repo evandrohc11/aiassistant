@@ -1,6 +1,6 @@
 """
 verify_env.py — Run this after activating your venv to confirm .env loads correctly.
-Usage: python verify_env.py
+Usage: python scripts/verify_env.py
 """
 import os
 from dotenv import load_dotenv

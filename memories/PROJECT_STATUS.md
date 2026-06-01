@@ -41,7 +41,6 @@ C:\Projects\Assistant\
 ├── .gitignore
 ├── requirements.txt
 ├── supabase_schema.sql          ← v2 schema — executed in Supabase ✓
-├── verify_env.py                ← sanity check: prints SUPABASE_URL
 ├── app/
 │   ├── __init__.py
 │   ├── main.py                  ← FastAPI entry point, /health route
@@ -58,6 +57,7 @@ C:\Projects\Assistant\
 │   ├── feelings_taxonomy.csv    ← imported via schema seed
 │   └── _PAINEL_V1.pbix          ← original Power BI file (reference)
 ├── scripts/
+│   ├── verify_env.py            ← sanity check: prints SUPABASE_URL
 │   ├── import_from_csv.py       ← ACTIVE: v2 CSV import (run this) ✓ done
 │   ├── import_legacy.py         ← old SQLite → Supabase migration (superseded)
 │   ├── import_my_db.py          ← old SQLite migration (superseded)
